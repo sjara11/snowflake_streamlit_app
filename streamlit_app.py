@@ -31,20 +31,34 @@ except URLError as e:
   streamlit.error()
 
 #snowflake connection
-my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
-my_cur = my_cnx.cursor()
-my_cur.execute("select * from pc_rivery_db.public.fruit_load_list")
-my_data_rows = my_cur.fetchall()
 streamlit.header("the fruit load list contains")
-streamlit.dataframe(my_data_rows)
+def get_fruit_list():
+  with my_cnx.cursor() as my_cur:
+    my_cur.execute("select * from pc_rivery_db.public.fruit_load_list")
+    return my_cur.fetchall()
+  
+if streamlit.button('Get fruit list'):
+  my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
+  my_data_rows = get_fruit_list()
+  streamlit.dataframe(my_data_rows)
+  
+streamlit.header("Add a new fruit")
+def add_fruit(fruit_input):
+  with my_cnx.cursor() as my_cur:
+    query = f"select * from pc_rivery_db.public.fruit_load_list where FRUIT_NAME = '{fruit_input}'"
+    my_cur.execute("select * from pc_rivery_db.public.fruit_load_list")
+    if my_cur.execute(query).fetchone():
+      return f"{fruit_input} record already exist"
+    else:
+      query_add = f"insert into PC_RIVERY_DB.PUBLIC.FRUIT_LOAD_LIST values ('{fruit_input}')"
+      my_cur.execute(query_add)
+      return f"thanks for adding {fruit_input}"
 
-# add a fruit by user input
-fruit_input = streamlit.text_input('What fruit would you like information about?','banana')
-query = f"select * from pc_rivery_db.public.fruit_load_list where FRUIT_NAME = '{fruit_input}'"
-if my_cur.execute(query).fetchone():
-  streamlit.text("this fruit already exist")
-else:
-  query_add = f"insert into PC_RIVERY_DB.PUBLIC.FRUIT_LOAD_LIST values ('{fruit_input}')"
-  my_cur.execute(query_add)
-  streamlit.text(f"thanks for adding {fruit_input}")
+fruit = streamlit.text_input('What fruit would you like information about?','banana')
+
+if streamlit.button('Add a fruit'):
+  my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
+  result = add_fruit(fruit)
+  streamlit.text(my_data_rows)
+
   
