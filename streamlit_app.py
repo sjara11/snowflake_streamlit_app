@@ -54,7 +54,7 @@ def add_fruit(fruit_input):
       my_cur.execute(query_add)
       return f"thanks for adding {fruit_input}"
 
-fruit = streamlit.text_input('What fruit would you like information about?')
+fruit = streamlit.text_input('What fruit would you like to add?')
 
 if streamlit.button('Add a fruit'):
   my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
