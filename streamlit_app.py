@@ -34,3 +34,14 @@ my_cur.execute("select * from pc_rivery_db.public.fruit_load_list")
 my_data_rows = my_cur.fetchall()
 streamlit.header("the fruit load list contains")
 streamlit.dataframe(my_data_rows)
+
+# add a fruit by user input
+fruit_input = streamlit.text_input('What fruit would you like information about?')
+query = f"select * from pc_rivery_db.public.fruit_load_list where $1 = '{fruit_input}'"
+if my_cur.execute(query):
+  streamlit.text("this fruit already exist")
+else:
+  query_add = "insert into PC_RIVERY_DB.PUBLIC.FRUIT_LOAD_LIST values ('{fruit_input}')"
+  my_cur.execute(query_add)
+  streamlit.text(f"thanks for adding {fruit_input}")
+  
